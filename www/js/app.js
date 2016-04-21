@@ -1,73 +1,80 @@
-// Ionic Starter App
+function init() {
+    var canvas = document.getElementById("renderCanvas");
+    var engine = new BABYLON.Engine(canvas, true);
+    var scene = new BABYLON.Scene(engine);
+    
+    // Light
+    var spot = new BABYLON.PointLight("spot", new BABYLON.Vector3(0, 40, 0), scene);
+    spot.diffuse = new BABYLON.Color3(1, 1, 1);
+    spot.specular = new BABYLON.Color3(0, 0, 0);
 
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-// 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers'])
+    // Camera
+    var camera = new BABYLON.ArcRotateCamera("camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
 
-.run(function($ionicPlatform) {
-  $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if (window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-      cordova.plugins.Keyboard.disableScroll(true);
+    // Ground
+    var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+    groundMaterial.diffuseTexture =  BABYLON.Texture.CreateFromBase64String(covermapImage, "ground", scene); 
+    groundMaterial.backFaceCulling = false;
 
-    }
-    if (window.StatusBar) {
-      // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
-    }
-  });
-})
+    var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", heightmapImage, 200, 100, 256, -10.921, 8.848, scene, false);
+    ground.material = groundMaterial;
+    ground.rotation.y = -Math.PI / 2;
+    ground.rotation.x = 0;
 
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
 
-    .state('app', {
-    url: '/app',
-    abstract: true,
-    templateUrl: 'templates/menu.html',
-    controller: 'AppCtrl'
-  })
+    // // Water
+    var waterMaterial = new BABYLON.StandardMaterial("waterMaterial", scene);
+    waterMaterial.diffuseTexture = BABYLON.Texture.CreateFromBase64String(waterImage, "water", scene); 
+    waterMaterial.backFaceCulling = false;
+    // // water plane
+    var waterMesh = BABYLON.Mesh.CreateGround("waterMesh", 200, 100, 32, scene, false);
+    waterMesh.material = waterMaterial;
+    waterMesh.rotation.y = Math.PI / 2;
+    waterMesh.rotation.x = 0;
 
-  .state('app.search', {
-    url: '/search',
-    views: {
-      'menuContent': {
-        templateUrl: 'templates/search.html'
-      }
-    }
-  })
+    // Skybox
+    var skybox = BABYLON.Mesh.CreateBox("skyBox", 800, scene);
+    var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+    skyboxMaterial.backFaceCulling = false;
+    var cubeImages = [skyboxPXImage, skyboxPYImage, skyboxPZImage, skyboxNXImage, skyboxNYImage, skyboxNZImage];
+    skyboxMaterial.reflectionTexture = BABYLON.CubeTexture.CreateFromImages(cubeImages, scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    skyboxMaterial.disableLighting = true;
+    skybox.material = skyboxMaterial;
+    
+    engine.runRenderLoop(function () {
+        fps++;
+        var sealevel = Math.round(parseFloat(document.getElementById('seaLevel').value)) / 1000.0;
+        waterMesh.position.y = sealevel;
+        document.getElementById('seaLevelValue').innerText = Math.floor(sealevel * 1000.0) + ' meters';
+        scene.render();
+    });
 
-  .state('app.browse', {
-      url: '/browse',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/browse.html'
-        }
-      }
-    })
-    .state('app.playlists', {
-      url: '/playlists',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/playlists.html',
-          controller: 'PlaylistsCtrl'
-        }
-      }
-    })
+    //performance optimization
+    BABYLON.SceneOptimizer.OptimizeAsync(scene);
 
-  .state('app.single', {
-    url: '/playlists/:playlistId',
-    views: {
-      'menuContent': {
-        templateUrl: 'templates/playlist.html',
-        controller: 'PlaylistCtrl'
-      }
-    }
-  });
-  // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/playlists');
-});
+    // resize
+    window.addEventListener("resize", function () {
+        engine.resize();
+    });
+
+    //measure fps
+    var fps = 0;
+    setInterval(function () {
+        document.getElementById('fps').innerText = fps;
+        fps = 0;
+    }, 1000);
+}
+
+function increaseSeaLevel() {
+    var seaLevelInput = document.getElementById('seaLevel');
+    seaLevelInput.value = parseFloat(seaLevelInput.value) + 1;
+}
+
+function decreaseSeaLevel() {
+    var seaLevelInput = document.getElementById('seaLevel');
+    seaLevelInput.value = parseFloat(seaLevelInput.value) - 1;
+}
