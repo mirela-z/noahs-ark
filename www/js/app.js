@@ -47,9 +47,12 @@ function init() {
     
     engine.runRenderLoop(function () {
         fps++;
-        var sealevel = Math.round(parseFloat(document.getElementById('seaLevel').value)) / 1000.0;
+        var i = parseInt(document.getElementById('seaLevel').value);
+        var sealevel = Math.round(predefinedHeights[i]) / 1000.0;
         waterMesh.position.y = sealevel;
-        document.getElementById('seaLevelValue').innerText = Math.floor(sealevel * 1000.0) + ' meters';
+        document.getElementById('seaLevelValue').innerText = Math.floor(sealevel * 1000.0);
+        document.getElementById('floodedArea').innerText = Math.floor(floodedArea[i]*400/1000);
+        document.getElementById('people').innerText = Math.floor(populationAffected[i]*17.8/1000);
         scene.render();
     });
 

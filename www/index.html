@@ -6,6 +6,7 @@
 
         <script src="babylon/hand.js"></script>
         <script src="babylon/babylon.2.3.max.js"></script>
+        <script src="js/data.js"></script>
         <script src="js/textures.js"></script>
         <script src="js/app.js"></script>
         <style>
@@ -37,16 +38,36 @@
             <tr>                
                 <td colspan="2">
                     <button onclick="decreaseSeaLevel()">-</button>
-                    <input type="range" value="0" min="-10921" max="8848" id="seaLevel">
+                    <input type="range" value="128" min="0" max="255" id="seaLevel">
                     <button onclick="increaseSeaLevel()">+</button> 
                 </td>
             </tr>
             <tr>    
                 <td>
-                    <span id="seaLevelValue"></span>
+                    <span id="seaLevelValue"></span> meters
                 </td>
                 <td align="right">
                     <span id="fps"></span> fps
+                </td>
+            </tr>
+            <tr>    
+                <td>
+                    Flooded area
+                </td>
+                <td align="right">
+                    <span id="floodedArea"></span> 
+                    <br>
+                    thousands km<sup>2</sup>
+                </td>
+            </tr>
+            <tr>    
+                <td>
+                    People living <br> 
+                    in flooded area
+                </td>
+                <td align="right">
+                    <span id="people"></span><br>
+                    thousands
                 </td>
             </tr>
         </table>
